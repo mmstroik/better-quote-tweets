@@ -1,0 +1,42 @@
+.quoted-tweets-container {
+  display: flex;
+  justify-content: center;
+  margin-right: 6px;
+}
+
+.quoted-tweets-container > div {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  cursor: pointer;
+  color: rgb(83, 100, 113);
+}
+
+.quoted-tweets-container > div:hover {
+  color: rgb(29, 155, 240);
+  background-color: rgba(29, 155, 240, 0.1);
+  border-radius: 50%;
+}
+
+.search-quotes-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  cursor: pointer;
+  color: inherit;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: auto;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.search-quotes-btn:hover {
+  color: rgb(29, 155, 240);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
