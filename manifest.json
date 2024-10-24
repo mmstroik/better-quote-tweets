@@ -3,7 +3,6 @@
   "name": "Better Quote Tweets",
   "version": "1.0",
   "description": "Adds a quote tweet button with search fallback",
-  "permissions": ["scripting"],
   "content_scripts": [
     {
       "matches": ["https://twitter.com/*", "https://x.com/*"],

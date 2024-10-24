@@ -112,11 +112,17 @@ function createQuoteButton(article) {
       const innerDiv = document.createElement('div');
       innerDiv.innerHTML = quoteIcon;
       
-      innerDiv.addEventListener('click', (e) => {
+      innerDiv.addEventListener('mouseup', (e) => {
           e.preventDefault();
           e.stopPropagation();
           const { twitterHandle, tweetId } = tweetDetails;
-          window.location.href = `https://x.com/${twitterHandle}/status/${tweetId}/quotes`;
+          const quotesUrl = `https://x.com/${twitterHandle}/status/${tweetId}/quotes`;
+          
+          if (e.button === 1) { // Middle mouse button
+              window.open(quotesUrl, '_blank');
+          } else if (e.button === 0) { // Left mouse button
+              window.location.href = quotesUrl;
+          }
       });
 
       quotedTweetsContainer.appendChild(innerDiv);
@@ -169,9 +175,15 @@ function addSearchButton() {
   const searchButton = document.createElement("div");
   searchButton.className = "search-quotes-btn";
   searchButton.textContent = "Search all quotes";
-  searchButton.addEventListener("click", (e) => {
+  searchButton.addEventListener("mouseup", (e) => {
     e.preventDefault();
-    window.location.href = `https://x.com/search?q=url:${tweetId}`;
+    const searchUrl = `https://x.com/search?q=url:${tweetId}`;
+    
+    if (e.button === 1) { // Middle mouse button
+      window.open(searchUrl, '_blank');
+    } else if (e.button === 0) { // Left mouse button
+      window.location.href = searchUrl;
+    }
   });
 
   wrapper.appendChild(searchButton);
