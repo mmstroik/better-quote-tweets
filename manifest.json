@@ -1,13 +1,38 @@
 {
   "manifest_version": 3,
-  "name": "Better Quote Tweets",
-  "version": "1.0",
-  "description": "Adds a quote tweet button with search fallback",
+  "name": "Better X Quotes and URL Search",
+  "version": "1.2",
+  "description": "Adds a quote tweet button with search fallback, quick URL search functionality, and keyboard shortcut",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_icon": {
+      "16": "quotation16.png",
+      "48": "quotation48.png",
+      "128": "quotation.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://twitter.com/*", "https://x.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "quotation16.png",
+    "48": "quotation48.png",
+    "128": "quotation.png"
+  },
+  "commands": {
+    "search-twitter": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Search Twitter for the current page"
+    }
+  }
 }

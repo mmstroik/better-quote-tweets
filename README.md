@@ -1,11 +1,27 @@
-# Better Quote Tweets
+# Quick Quote & Link Search for X
 
-A simple Chrome extension that improves the quote tweets experience on Twitter/X.
+This extension adds shortcuts for viewing quote tweets and searching Twitter/X for webpage mentions.
 
 ## Features
 
-1. Adds a quote icon button to every tweet that links directly to that tweet's quotes
-2. Adds a "Search all quotes" button on quote tweet pages that performs a URL-based search to find potentially hidden quotes
+### Quote Tweets
+
+- Adds a quote button to all tweets that links directly to that tweet's quotes  
+- Adds a "Search all quotes" fallback option on quote pages that finds quotes using URL-based search (sometimes surfaces quotes that X's built-in quotes view misses)
+
+### URL Search
+
+- Adds shortcut to search Twitter/X for mentions of the webpage/article you're currently viewing
+
+#### URL Search Usage
+
+1. After installation, pin the extension to your toolbar:
+   - Click the puzzle piece icon in the top-right
+   - Find the extension and click the pin icon
+2. On any webpage, either:
+   - Click the toolbar icon, or
+   - Use Ctrl+Shift+S (Windows/Linux) or Cmd+Shift+S (Mac)
+3. A new tab will open with an X search for all mentions of that URL
 
 ## Installation
 
@@ -16,15 +32,7 @@ A simple Chrome extension that improves the quote tweets experience on Twitter/X
 
 ### Manual Installation
 
-1. Download the extension:
-   - Click the green "Code" button above
-   - Select "Download ZIP"
-   - Extract the ZIP file
+1. Download the extension: Click "Code" > "Download ZIP" and extract it
 2. Open Chrome/Edge/Brave and go to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
 4. Click "Load unpacked" and select the extracted folder
-
-## Usage
-
-- Click the quote icon next to any tweet to view its quotes
-- On a tweet's quotes page, click "Search all quotes" to perform a thorough URL-based search for additional quotes that might not be showing in the default view
