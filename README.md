@@ -1,6 +1,6 @@
 # Quick Quote & Link Search for X
 
-This extension adds shortcuts for viewing quote tweets and searching Twitter/X for webpage mentions.
+Chromium extension that adds shortcuts for viewing quote tweets and searching Twitter/X for webpage mentions.
 
 ## Features
 
