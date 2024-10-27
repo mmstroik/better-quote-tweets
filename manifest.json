@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Better X Quotes and URL Search",
-  "version": "1.2",
+  "name": "Quick Quote & Link Search for X",
+  "version": "1.1",
   "description": "Adds shortcuts for viewing quote tweets and searching Twitter/X for webpage mentions.",
   "permissions": ["activeTab"],
   "action": {
