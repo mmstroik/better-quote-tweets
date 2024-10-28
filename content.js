@@ -1,11 +1,11 @@
 const quoteIcon = `<svg width="1.6em" height="1.6em" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M10 12H5C4.44772 12 4 11.5523 4 11V7.5C4 6.94772 4.44772 6.5 5 6.5H9C9.55228 6.5 10 6.94772 10 7.5V12ZM10 12C10 14.5 9 16 6 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M20 12H15C14.4477 12 14 11.5523 14 11V7.5C14 6.94772 14.4477 6.5 15 6.5H19C19.5523 6.5 20 6.94772 20 7.5V12ZM20 12C20 14.5 19 16 16 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>`;
 
 function getTweetDetails(article) {
-  const defaultTwitterHandle = "x";
-  let twitterHandle = defaultTwitterHandle;
+  const defaultTwitterHandle = "x"; 
+  let twitterHandle = defaultTwitterHandle; // fallback handle
   let tweetId = null;
 
-  // First try to get handle from user name element
+  // try to get handle from user name element
   const handleElement = article.querySelector(
     '[data-testid*="User-Name"] > div:nth-child(2)'
   );
@@ -18,12 +18,12 @@ function getTweetDetails(article) {
     }
   }
 
-  // Construct selector based on whether a valid handle was found
+
   const selector = `a[href*="${
     twitterHandle !== defaultTwitterHandle ? twitterHandle : ""
   }/status"]`;
 
-  // Try to find tweet ID from status link
+  // find tweet ID from status link
   const tweetAnchor = article.querySelector(selector);
   if (tweetAnchor) {
     const hrefParts = tweetAnchor.getAttribute("href").split("/");
@@ -42,15 +42,14 @@ function getTweetDetails(article) {
 }
 
 function findSuitableContainer(article) {
-  // Try various methods to find a suitable container
   const strategies = [
-      // Strategy 1: Direct bookmark approach
+      // Direct bookmark approach
       () => {
           const bookmark = article.querySelector('[data-testid="bookmark"]') || 
                           article.querySelector('[data-testid="removeBookmark"]');
           return bookmark?.parentNode;
       },
-      // Strategy 2: Look for the engagement group
+      // Look for the engagement group
       () => {
           const group = article.querySelector('div[role="group"]');
           if (!group) return null;
@@ -60,7 +59,7 @@ function findSuitableContainer(article) {
               .filter(el => ['bookmark', 'removeBookmark', 'share'].includes(el.getAttribute('data-testid')));
           return elements[elements.length - 1]?.parentNode;
       },
-      // Strategy 3: Look for share button as anchor
+      // Look for share button as anchor
       () => {
           const share = article.querySelector('[data-testid="share"]');
           return share?.parentNode;
@@ -77,24 +76,21 @@ function findSuitableContainer(article) {
 
 function createQuoteButton(article) {
   try {
-      // Skip if already has our button - do this before any logging
+      // Skip if already has quote button
       if (article.querySelector('.quoted-tweets-container')) {
           return;
       }
 
-      // Skip if it's not a tweet (no time element) - do this before any logging
       if (!article.querySelector('time')) {
           return;
       }
 
       const tweetDetails = getTweetDetails(article);
       if (!tweetDetails) {
-          // Only log if we found a valid tweet without our button
           console.log('No tweet details found');
           return;
       }
 
-      // Find suitable container
       const container = findSuitableContainer(article);
       if (!container) {
           // Only log once per actual attempt at finding a container
@@ -105,7 +101,6 @@ function createQuoteButton(article) {
           return;
       }
 
-      // Create container structure
       const quotedTweetsContainer = document.createElement('div');
       quotedTweetsContainer.className = 'quoted-tweets-container';
 
@@ -127,7 +122,7 @@ function createQuoteButton(article) {
 
       quotedTweetsContainer.appendChild(innerDiv);
       
-      // Insert the button
+
       container.insertAdjacentElement('beforebegin', quotedTweetsContainer);
       
       // Clear the attempted flag if we succeeded
@@ -141,7 +136,6 @@ function addSearchButton() {
   // Only add if we're on a quotes page
   if (!window.location.pathname.endsWith("/quotes")) return;
 
-  // Find the header container that contains "Post engagements"
   const headers = document.querySelectorAll(
     ".css-175oi2r.r-16y2uox.r-1wbh5a2.r-1pi2tsx.r-1777fci"
   );

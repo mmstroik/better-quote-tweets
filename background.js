@@ -1,8 +1,7 @@
 function getCleanUrl(url) {
   let cleanUrl = new URL(url).hostname + new URL(url).pathname;
-  // Remove 'www.' if present
+  // Remove 'www.', 'https', query parameters, and hash
   cleanUrl = cleanUrl.replace(/^www\./, '');
-  // Remove query parameters and hash
   cleanUrl = cleanUrl.split(/[?#]/)[0];
   return cleanUrl;
 }
@@ -10,7 +9,7 @@ function getCleanUrl(url) {
 function searchTwitterForCurrentPage(tab) {
   const cleanUrl = getCleanUrl(tab.url);
   const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(`url:${cleanUrl} OR ${cleanUrl}`)}`;
-  chrome.tabs.create({ url: searchUrl });
+  chrome.tabs.create({ url: searchUrl, index: tab.index + 1 });
 }
 
 chrome.action.onClicked.addListener(searchTwitterForCurrentPage);
