@@ -9,7 +9,7 @@ function getCleanUrl(url) {
 
 function searchTwitterForCurrentPage(tab) {
   const cleanUrl = getCleanUrl(tab.url);
-  const searchUrl = `https://twitter.com/search?q=url:${encodeURIComponent(cleanUrl)}`;
+  const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(`url:${cleanUrl} OR ${cleanUrl}`)}`;
   chrome.tabs.create({ url: searchUrl });
 }
 
