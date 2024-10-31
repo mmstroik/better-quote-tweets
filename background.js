@@ -9,6 +9,14 @@ function getCleanUrl(url) {
     }
   }
   
+  // Special case for YouTube URLs (keep video ID only)
+  if (urlObj.hostname === 'youtube.com' || urlObj.hostname === 'www.youtube.com') {
+    const videoId = urlObj.searchParams.get('v');
+    if (videoId) {
+      return `youtube.com/watch?v=${videoId}`;
+    }
+  }
+  
   // Default behavior (remove 'www.', 'https', query parameters, and hash)
   let cleanUrl = urlObj.hostname + urlObj.pathname;
   cleanUrl = cleanUrl.replace(/^www\./, '');
