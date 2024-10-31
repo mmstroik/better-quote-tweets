@@ -9,11 +9,11 @@ function getCleanUrl(url) {
     }
   }
   
-  // Special case for YouTube URLs (keep video ID only)
+  // Special case for YouTube URLs (video ID only)
   if (urlObj.hostname === 'youtube.com' || urlObj.hostname === 'www.youtube.com') {
     const videoId = urlObj.searchParams.get('v');
     if (videoId) {
-      return `youtube.com/watch?v=${videoId}`;
+      return videoId;
     }
   }
   
