@@ -1,6 +1,16 @@
 function getCleanUrl(url) {
-  let cleanUrl = new URL(url).hostname + new URL(url).pathname;
-  // Remove 'www.', 'https', query parameters, and hash
+  const urlObj = new URL(url);
+  
+  // Special case for arXiv URLs (paper ID only)
+  if (urlObj.hostname === 'arxiv.org') {
+    const arxivIdMatch = urlObj.pathname.match(/\d+\.\d+(?:v\d+)?/);
+    if (arxivIdMatch) {
+      return arxivIdMatch[0].split('v')[0];
+    }
+  }
+  
+  // Default behavior (remove 'www.', 'https', query parameters, and hash)
+  let cleanUrl = urlObj.hostname + urlObj.pathname;
   cleanUrl = cleanUrl.replace(/^www\./, '');
   cleanUrl = cleanUrl.split(/[?#]/)[0];
   return cleanUrl;
