@@ -1,8 +1,17 @@
 const quoteIcon = `<svg width="1.6em" height="1.6em" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M10 12H5C4.44772 12 4 11.5523 4 11V7.5C4 6.94772 4.44772 6.5 5 6.5H9C9.55228 6.5 10 6.94772 10 7.5V12ZM10 12C10 14.5 9 16 6 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M20 12H15C14.4477 12 14 11.5523 14 11V7.5C14 6.94772 14.4477 6.5 15 6.5H19C19.5523 6.5 20 6.94772 20 7.5V12ZM20 12C20 14.5 19 16 16 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>`;
 
+const tweetDetailsCache = new WeakMap(); // Permanent cache for tweet details per article
+const containerCache = new WeakMap(); // Temporary cache for container lookups
+
 function getTweetDetails(article) {
-  const defaultTwitterHandle = "x"; 
-  let twitterHandle = defaultTwitterHandle; // fallback handle
+  // Check cache first
+  const cachedDetails = tweetDetailsCache.get(article);
+  if (cachedDetails) {
+    return cachedDetails;
+  }
+
+  const defaultTwitterHandle = "x";
+  let twitterHandle = defaultTwitterHandle;
   let tweetId = null;
 
   // try to get handle from user name element
@@ -17,7 +26,6 @@ function getTweetDetails(article) {
       twitterHandle = handleMatch[1];
     }
   }
-
 
   const selector = `a[href*="${
     twitterHandle !== defaultTwitterHandle ? twitterHandle : ""
@@ -38,37 +46,54 @@ function getTweetDetails(article) {
     }
   }
 
-  return tweetId ? { tweetId, twitterHandle } : null;
+  const details = tweetId ? { tweetId, twitterHandle } : null;
+  
+  // Cache the result (even if null, to avoid re-querying)
+  if (details) {
+    tweetDetailsCache.set(article, details);
+  }
+  
+  return details;
 }
 
 function findSuitableContainer(article) {
+  // Check temporary cache first
+  const cachedContainer = containerCache.get(article);
+  if (cachedContainer) {
+    return cachedContainer;
+  }
+
   const strategies = [
-      // Direct bookmark approach
-      () => {
-          const bookmark = article.querySelector('[data-testid="bookmark"]') || 
-                          article.querySelector('[data-testid="removeBookmark"]');
-          return bookmark?.parentNode;
-      },
-      // Look for the engagement group
-      () => {
-          const group = article.querySelector('div[role="group"]');
-          if (!group) return null;
-          
-          // Find the last interactive element in the group
-          const elements = Array.from(group.querySelectorAll('[data-testid]'))
-              .filter(el => ['bookmark', 'removeBookmark', 'share'].includes(el.getAttribute('data-testid')));
-          return elements[elements.length - 1]?.parentNode;
-      },
-      // Look for share button as anchor
-      () => {
-          const share = article.querySelector('[data-testid="share"]');
-          return share?.parentNode;
-      }
+    // Direct bookmark approach
+    () => {
+      const bookmark = article.querySelector('[data-testid="bookmark"]') ||
+                      article.querySelector('[data-testid="removeBookmark"]');
+      return bookmark?.parentNode;
+    },
+    // Look for the engagement group
+    () => {
+      const group = article.querySelector('div[role="group"]');
+      if (!group) return null;
+      
+      // Find the last interactive element in the group
+      const elements = Array.from(group.querySelectorAll('[data-testid]'))
+        .filter(el => ['bookmark', 'removeBookmark', 'share'].includes(el.getAttribute('data-testid')));
+      return elements[elements.length - 1]?.parentNode;
+    },
+    // Look for share button as anchor
+    () => {
+      const share = article.querySelector('[data-testid="share"]');
+      return share?.parentNode;
+    }
   ];
 
   for (const strategy of strategies) {
-      const container = strategy();
-      if (container) return container;
+    const container = strategy();
+    if (container) {
+      // Cache the result temporarily
+      containerCache.set(article, container);
+      return container;
+    }
   }
 
   return null;
@@ -76,59 +101,57 @@ function findSuitableContainer(article) {
 
 function createQuoteButton(article) {
   try {
-      // Skip if already has quote button
-      if (article.querySelector('.quoted-tweets-container')) {
-          return;
+    // Skip if already has quote button
+    if (article.querySelector('.quoted-tweets-container')) {
+      return;
+    }
+
+    if (!article.querySelector('time')) {
+      return;
+    }
+
+    const tweetDetails = getTweetDetails(article);
+    if (!tweetDetails) {
+      console.log('No tweet details found');
+      return;
+    }
+
+    const container = findSuitableContainer(article);
+    if (!container) {
+      // Only log once per actual attempt at finding a container
+      if (article.getAttribute('data-quote-button-attempted') !== 'true') {
+        console.log('No suitable container found');
+        article.setAttribute('data-quote-button-attempted', 'true');
       }
+      return;
+    }
 
-      if (!article.querySelector('time')) {
-          return;
-      }
+    const quotedTweetsContainer = document.createElement('div');
+    quotedTweetsContainer.className = 'quoted-tweets-container';
 
-      const tweetDetails = getTweetDetails(article);
-      if (!tweetDetails) {
-          console.log('No tweet details found');
-          return;
-      }
-
-      const container = findSuitableContainer(article);
-      if (!container) {
-          // Only log once per actual attempt at finding a container
-          if (article.getAttribute('data-quote-button-attempted') !== 'true') {
-              console.log('No suitable container found');
-              article.setAttribute('data-quote-button-attempted', 'true');
-          }
-          return;
-      }
-
-      const quotedTweetsContainer = document.createElement('div');
-      quotedTweetsContainer.className = 'quoted-tweets-container';
-
-      const innerDiv = document.createElement('div');
-      innerDiv.innerHTML = quoteIcon;
+    const innerDiv = document.createElement('div');
+    innerDiv.innerHTML = quoteIcon;
+    
+    innerDiv.addEventListener('mouseup', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const { twitterHandle, tweetId } = tweetDetails;
+      const quotesUrl = `https://x.com/${twitterHandle}/status/${tweetId}/quotes`;
       
-      innerDiv.addEventListener('mouseup', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const { twitterHandle, tweetId } = tweetDetails;
-          const quotesUrl = `https://x.com/${twitterHandle}/status/${tweetId}/quotes`;
-          
-          if (e.button === 1) { // Middle mouse button
-              window.open(quotesUrl, '_blank');
-          } else if (e.button === 0) { // Left mouse button
-              window.location.href = quotesUrl;
-          }
-      });
+      if (e.button === 1) { // Middle mouse button
+        window.open(quotesUrl, '_blank');
+      } else if (e.button === 0) { // Left mouse button
+        window.location.href = quotesUrl;
+      }
+    });
 
-      quotedTweetsContainer.appendChild(innerDiv);
-      
-
-      container.insertAdjacentElement('beforebegin', quotedTweetsContainer);
-      
-      // Clear the attempted flag if we succeeded
-      article.removeAttribute('data-quote-button-attempted');
+    quotedTweetsContainer.appendChild(innerDiv);
+    container.insertAdjacentElement('beforebegin', quotedTweetsContainer);
+    
+    // Clear the attempted flag if we succeeded
+    article.removeAttribute('data-quote-button-attempted');
   } catch (error) {
-      console.log(`Error creating button: ${error.message}`);
+    console.log(`Error creating button: ${error.message}`);
   }
 }
 
@@ -186,22 +209,25 @@ function addSearchButton() {
 
 function init() {
   const observer = new MutationObserver((mutations) => {
-      // Keep track of processed articles in this batch
-      const processedInBatch = new Set();
-      
-      for (let mutation of mutations) {
-          if (mutation.addedNodes.length) {
-              const articles = document.querySelectorAll("article");
-              Array.from(articles).forEach((article) => {
-                  // Skip if we already processed this article in this batch
-                  if (processedInBatch.has(article)) return;
-                  processedInBatch.add(article);
-                  
-                  createQuoteButton(article);
-              });
-              addSearchButton();
-          }
+    // Clear the container cache at the start of each batch
+    containerCache.clear();
+    
+    // Keep track of processed articles in this batch
+    const processedInBatch = new Set();
+    
+    for (let mutation of mutations) {
+      if (mutation.addedNodes.length) {
+        const articles = document.querySelectorAll("article");
+        Array.from(articles).forEach((article) => {
+          // Skip if we already processed this article in this batch
+          if (processedInBatch.has(article)) return;
+          processedInBatch.add(article);
+          
+          createQuoteButton(article);
+        });
+        addSearchButton();
       }
+    }
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
@@ -209,10 +235,10 @@ function init() {
   // Initial load
   const processedInitially = new Set();
   document.querySelectorAll('article').forEach(article => {
-      if (!processedInitially.has(article)) {
-          processedInitially.add(article);
-          createQuoteButton(article);
-      }
+    if (!processedInitially.has(article)) {
+      processedInitially.add(article);
+      createQuoteButton(article);
+    }
   });
   addSearchButton();
 }
