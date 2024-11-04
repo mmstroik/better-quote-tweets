@@ -21,6 +21,7 @@ Chromium extension that adds shortcuts for viewing quote tweets and searching Tw
 2. On any webpage, either:
    - Click the toolbar icon, or
    - Use Ctrl+Shift+S (Windows/Linux) or Cmd+Shift+S (Mac)
+     - This can be changed in the extension keyboard shortcut settings
 3. A new tab will open with an X search for all mentions of that URL
 
 ## Installation
