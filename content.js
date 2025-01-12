@@ -132,6 +132,14 @@ function createQuoteButton(article) {
     const innerDiv = document.createElement('div');
     innerDiv.innerHTML = quoteIcon;
     
+    // Add mousedown handler to prevent scroll
+    innerDiv.addEventListener('mousedown', (e) => {
+      if (e.button === 1) { // Middle mouse button
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+    
     innerDiv.addEventListener('mouseup', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -249,7 +257,6 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
-
 // Handle navigation
 let lastUrl = location.href;
 new MutationObserver(() => {
@@ -260,3 +267,4 @@ new MutationObserver(() => {
       addSearchButton();
   }
 }).observe(document, {subtree: true, childList: true});
+
