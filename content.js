@@ -47,12 +47,12 @@ function getTweetDetails(article) {
   }
 
   const details = tweetId ? { tweetId, twitterHandle } : null;
-  
+
   // Cache the result (even if null, to avoid re-querying)
   if (details) {
     tweetDetailsCache.set(article, details);
   }
-  
+
   return details;
 }
 
@@ -66,25 +66,31 @@ function findSuitableContainer(article) {
   const strategies = [
     // Direct bookmark approach
     () => {
-      const bookmark = article.querySelector('[data-testid="bookmark"]') ||
-                      article.querySelector('[data-testid="removeBookmark"]');
+      const bookmark =
+        article.querySelector('[data-testid="bookmark"]') ||
+        article.querySelector('[data-testid="removeBookmark"]');
       return bookmark?.parentNode;
     },
     // Look for the engagement group
     () => {
       const group = article.querySelector('div[role="group"]');
       if (!group) return null;
-      
+
       // Find the last interactive element in the group
-      const elements = Array.from(group.querySelectorAll('[data-testid]'))
-        .filter(el => ['bookmark', 'removeBookmark', 'share'].includes(el.getAttribute('data-testid')));
+      const elements = Array.from(
+        group.querySelectorAll("[data-testid]")
+      ).filter((el) =>
+        ["bookmark", "removeBookmark", "share"].includes(
+          el.getAttribute("data-testid")
+        )
+      );
       return elements[elements.length - 1]?.parentNode;
     },
     // Look for share button as anchor
     () => {
       const share = article.querySelector('[data-testid="share"]');
       return share?.parentNode;
-    }
+    },
   ];
 
   for (const strategy of strategies) {
@@ -102,62 +108,65 @@ function findSuitableContainer(article) {
 function createQuoteButton(article) {
   try {
     // Skip if already has quote button
-    if (article.querySelector('.quoted-tweets-container')) {
+    if (article.querySelector(".quoted-tweets-container")) {
       return;
     }
 
-    if (!article.querySelector('time')) {
+    if (!article.querySelector("time")) {
       return;
     }
 
     const tweetDetails = getTweetDetails(article);
     if (!tweetDetails) {
-      console.log('No tweet details found');
+      console.log("No tweet details found");
       return;
     }
 
     const container = findSuitableContainer(article);
     if (!container) {
       // Only log once per actual attempt at finding a container
-      if (article.getAttribute('data-quote-button-attempted') !== 'true') {
-        console.log('No suitable container found');
-        article.setAttribute('data-quote-button-attempted', 'true');
+      if (article.getAttribute("data-quote-button-attempted") !== "true") {
+        console.log("No suitable container found");
+        article.setAttribute("data-quote-button-attempted", "true");
       }
       return;
     }
 
-    const quotedTweetsContainer = document.createElement('div');
-    quotedTweetsContainer.className = 'quoted-tweets-container';
+    const quotedTweetsContainer = document.createElement("div");
+    quotedTweetsContainer.className = "quoted-tweets-container";
 
-    const innerDiv = document.createElement('div');
+    const innerDiv = document.createElement("div");
     innerDiv.innerHTML = quoteIcon;
-    
+
     // Add mousedown handler to prevent scroll
-    innerDiv.addEventListener('mousedown', (e) => {
-      if (e.button === 1) { // Middle mouse button
+    innerDiv.addEventListener("mousedown", (e) => {
+      if (e.button === 1) {
+        // Middle mouse button
         e.preventDefault();
         e.stopPropagation();
       }
     });
-    
-    innerDiv.addEventListener('mouseup', (e) => {
+
+    innerDiv.addEventListener("mouseup", (e) => {
       e.preventDefault();
       e.stopPropagation();
       const { twitterHandle, tweetId } = tweetDetails;
       const quotesUrl = `https://x.com/${twitterHandle}/status/${tweetId}/quotes`;
-      
-      if (e.button === 1) { // Middle mouse button
-        window.open(quotesUrl, '_blank');
-      } else if (e.button === 0) { // Left mouse button
+
+      if (e.button === 1) {
+        // Middle mouse button
+        window.open(quotesUrl, "_blank");
+      } else if (e.button === 0) {
+        // Left mouse button
         window.location.href = quotesUrl;
       }
     });
 
     quotedTweetsContainer.appendChild(innerDiv);
-    container.insertAdjacentElement('beforebegin', quotedTweetsContainer);
-    
+    container.insertAdjacentElement("beforebegin", quotedTweetsContainer);
+
     // Clear the attempted flag if we succeeded
-    article.removeAttribute('data-quote-button-attempted');
+    article.removeAttribute("data-quote-button-attempted");
   } catch (error) {
     console.log(`Error creating button: ${error.message}`);
   }
@@ -203,10 +212,12 @@ function addSearchButton() {
   searchButton.addEventListener("mouseup", (e) => {
     e.preventDefault();
     const searchUrl = `https://x.com/search?q=url:${tweetId}`;
-    
-    if (e.button === 1) { // Middle mouse button
-      window.open(searchUrl, '_blank');
-    } else if (e.button === 0) { // Left mouse button
+
+    if (e.button === 1) {
+      // Middle mouse button
+      window.open(searchUrl, "_blank");
+    } else if (e.button === 0) {
+      // Left mouse button
       window.location.href = searchUrl;
     }
   });
@@ -219,10 +230,10 @@ function init() {
   const observer = new MutationObserver((mutations) => {
     // Clear the container cache at the start of each batch
     containerCache.clear();
-    
+
     // Keep track of processed articles in this batch
     const processedInBatch = new Set();
-    
+
     for (let mutation of mutations) {
       if (mutation.addedNodes.length) {
         const articles = document.querySelectorAll("article");
@@ -230,7 +241,7 @@ function init() {
           // Skip if we already processed this article in this batch
           if (processedInBatch.has(article)) return;
           processedInBatch.add(article);
-          
+
           createQuoteButton(article);
         });
         addSearchButton();
@@ -239,10 +250,10 @@ function init() {
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
-  
+
   // Initial load
   const processedInitially = new Set();
-  document.querySelectorAll('article').forEach(article => {
+  document.querySelectorAll("article").forEach((article) => {
     if (!processedInitially.has(article)) {
       processedInitially.add(article);
       createQuoteButton(article);
@@ -252,8 +263,8 @@ function init() {
 }
 
 // Initialize on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
 }
@@ -262,9 +273,8 @@ let lastUrl = location.href;
 new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
-      lastUrl = url;
-      document.querySelectorAll('article').forEach(createQuoteButton);
-      addSearchButton();
+    lastUrl = url;
+    document.querySelectorAll("article").forEach(createQuoteButton);
+    addSearchButton();
   }
-}).observe(document, {subtree: true, childList: true});
-
+}).observe(document, { subtree: true, childList: true });
