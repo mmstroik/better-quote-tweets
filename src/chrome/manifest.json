@@ -6,9 +6,9 @@
   "permissions": ["activeTab", "contextMenus"],
   "action": {
     "default_icon": {
-      "16": "quotation16.png",
-      "48": "quotation48.png",
-      "128": "quotation.png"
+      "16": "../common/quotation16.png",
+      "48": "../common/quotation48.png",
+      "128": "../common/quotation.png"
     }
   },
   "background": {
@@ -17,14 +17,14 @@
   "content_scripts": [
     {
       "matches": ["https://twitter.com/*", "https://x.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "js": ["../common/content.js"],
+      "css": ["../common/styles.css"]
     }
   ],
   "icons": {
-    "16": "quotation16.png",
-    "48": "quotation48.png",
-    "128": "quotation.png"
+    "16": "../common/quotation16.png",
+    "48": "../common/quotation48.png",
+    "128": "../common/quotation.png"
   },
   "commands": {
     "search-twitter": {

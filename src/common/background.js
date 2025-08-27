@@ -51,14 +51,26 @@ function searchTwitterForCurrentPage(tab) {
   const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(
     cleanUrl
   )}`;
-  chrome.tabs.create({ url: searchUrl, index: tab.index + 1 });
+  
+  // Use cross-browser compatible API
+  const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+  browserAPI.tabs.create({ url: searchUrl, index: tab.index + 1 });
 }
 
-chrome.action.onClicked.addListener(searchTwitterForCurrentPage);
+// Use cross-browser compatible API
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
-chrome.commands.onCommand.addListener((command) => {
+// Handle browser action click (Firefox uses browserAction, Chrome uses action)
+if (browserAPI.browserAction && browserAPI.browserAction.onClicked) {
+  browserAPI.browserAction.onClicked.addListener(searchTwitterForCurrentPage);
+} else if (browserAPI.action && browserAPI.action.onClicked) {
+  browserAPI.action.onClicked.addListener(searchTwitterForCurrentPage);
+}
+
+// Handle keyboard commands
+browserAPI.commands.onCommand.addListener((command) => {
   if (command === "search-twitter") {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    browserAPI.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         searchTwitterForCurrentPage(tabs[0]);
       }
@@ -67,8 +79,8 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 // Add context menu when extension is installed
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
+browserAPI.runtime.onInstalled.addListener(() => {
+  browserAPI.contextMenus.create({
     id: "search-twitter-link",
     title: "Search X for this link",
     contexts: ["link"],
@@ -76,7 +88,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+browserAPI.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "search-twitter-link") {
     // Only handle non-Twitter sites
     const isTwitter = tab.url.match(/^https?:\/\/(.*\.)?(twitter|x)\.com/);
@@ -85,7 +97,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(
         `url:${cleanUrl}`
       )}`;
-      chrome.tabs.create({ url: searchUrl, index: tab.index + 1 });
+      browserAPI.tabs.create({ url: searchUrl, index: tab.index + 1 });
     }
   }
 });
