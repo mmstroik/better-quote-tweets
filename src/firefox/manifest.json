@@ -1,0 +1,45 @@
+{
+  "manifest_version": 2,
+  "name": "Quick Quote & Link Search for X",
+  "version": "1.2.0",
+  "description": "Adds shortcuts for viewing quote tweets and searching Twitter/X for webpage mentions.",
+  "permissions": ["activeTab", "contextMenus"],
+  "browser_action": {
+    "default_icon": {
+      "16": "../common/quotation16.png",
+      "48": "../common/quotation48.png",
+      "128": "../common/quotation.png"
+    }
+  },
+  "background": {
+    "scripts": ["../common/background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
+      "js": ["../common/content.js"],
+      "css": ["../common/styles.css"]
+    }
+  ],
+  "icons": {
+    "16": "../common/quotation16.png",
+    "48": "../common/quotation48.png",
+    "128": "../common/quotation.png"
+  },
+  "commands": {
+    "search-twitter": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Search Twitter for the current page"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "quick-quote-link-search@example.com",
+      "strict_min_version": "78.0"
+    }
+  }
+}

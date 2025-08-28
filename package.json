@@ -1,0 +1,29 @@
+{
+  "name": "quick-quote-link-search",
+  "version": "1.2.0",
+  "description": "Browser extension for viewing quote tweets and searching Twitter/X for webpage mentions",
+  "scripts": {
+    "build": "./build.sh",
+    "build:chrome": "rm -rf dist/chrome && mkdir -p dist/chrome/common && cp -r src/chrome/* dist/chrome/ && cp -r src/common/* dist/chrome/common/ && sed -i 's|\"../common/|\"common/|g' dist/chrome/manifest.json && sed -i \"s|'../common/|'common/|g\" dist/chrome/background.js",
+    "build:firefox": "rm -rf dist/firefox && mkdir -p dist/firefox/common && cp -r src/firefox/* dist/firefox/ && cp -r src/common/* dist/firefox/common/ && sed -i 's|\"../common/|\"common/|g' dist/firefox/manifest.json",
+    "package": "npm run build && cd dist/chrome && zip -r ../chrome-extension.zip * && cd ../firefox && zip -r ../firefox-extension.zip *"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/better-quote-tweets.git"
+  },
+  "keywords": [
+    "browser-extension",
+    "twitter",
+    "x",
+    "quotes",
+    "chrome",
+    "firefox"
+  ],
+  "author": "",
+  "license": "MIT",
+  "browsers": {
+    "chrome": ">=88",
+    "firefox": ">=78"
+  }
+}
